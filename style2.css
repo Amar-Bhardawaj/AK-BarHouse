@@ -1,0 +1,141 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #fff8f0;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    text-align: center;
+    background: linear-gradient(to right, #3e2723, #000);
+    color: #fff;
+    padding: 30px 0;
+    border-bottom: 4px solid #d4af37;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+header h2 {
+    font-family: 'Georgia', serif;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #d4af37;
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+}
+
+header p {
+    font-size: 1.2rem;
+    color: #f5f5f5;
+    margin-top: 8px;
+}
+
+section {
+    padding: 50px 20px;
+    background-color: #f7f3ef;
+}
+.container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    justify-content: center;   
+    align-items: stretch;      
+    padding: 20px;
+}
+
+.card {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    max-width: 300px;   
+    min-width: 280px;   
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+}
+
+.card-img-top {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.card-title {
+    font-weight: bold;
+    color: #333;
+}
+
+.card-text {
+    font-size: 14px;
+    color: #555;
+}
+
+ul {
+    padding-left: 20px;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    header h2 {
+        font-size: 2rem;
+    }
+
+    section img {
+        max-width: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    header h2 {
+        font-size: 1.6rem;
+    }
+
+    header p {
+        font-size: 1rem;
+    }
+}
+.card-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.btn.add {
+  background-color: #f39c12;
+  color: white;
+}
+
+.btn.add:hover {
+  background-color: #e67e22;
+}
+
+.btn.buy {
+  background-color: #27ae60;
+  color: white;
+}
+
+.btn.buy:hover {
+  background-color: #219150;
+}

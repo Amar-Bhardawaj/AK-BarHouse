@@ -1,0 +1,127 @@
+body {
+    background: white;
+    font-family: Arial, sans-serif;
+    color: #333;
+    line-height: 1.6;
+}
+.toparea {
+    background: #3B2F2F; 
+    color: #CCCCCC;
+    padding: 20px 50px;
+}
+
+.toparea .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.toparea img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;   
+    object-fit: cover;
+}
+
+.toparea h1 {
+    font-size: 35px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+.menuarea {
+    background: #013220; 
+    padding: 15px 0;
+}
+
+.menuarea ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.menuarea ul li {
+    display: inline;
+}
+
+.menuarea ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.menuarea ul li a:hover {
+    color: #FFD700; 
+}
+
+.sliderarea {
+    background: #013220;
+}
+
+.carousel-item img {
+    height: 500px;   
+    object-fit: cover;
+}
+
+.boxarea {
+    background: #f8f8f8;
+    padding: 50px 0;
+    text-align: center;
+}
+
+.boxarea h2 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    color: #3B2F2F;
+}
+
+.boxarea .row {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.boxarea .box {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    width: 280px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.boxarea .box img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.boxarea .box:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.footerarea {
+    background: #3B2F2F;
+    color: #CCCCCC;
+    text-align: center;
+    padding: 30px 20px;
+}
+
+.footerarea p {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.footerarea a {
+    color: #FFD700;
+    text-decoration: none;
+}
+
+.footerarea a:hover {
+    text-decoration: underline;
+}
