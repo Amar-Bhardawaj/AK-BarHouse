@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="menuarea shadow-sm">
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <!-- Brand / Logo -->
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img src="https://images.pexels.com/photos/33960221/pexels-photo-33960221.jpeg"
+                         alt="Logo" width="50" height="50"
+                         class="brand-logo">
+                    <div class="brand-text ms-2">
+                        <h2 class="brand-name animate__animated animate__fadeInLeft">The Barrel House</h2>
+                        <p class="brand-tagline">Crafted Elegance in Every Sip</p>
+                    </div>
+                </a>
+
+                <!-- Navbar Toggle (for mobile) -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Navigation Links -->
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                Categories
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="whiskey.html">Whiskey</a></li>
+                                <li><a class="dropdown-item" href="wine.html">Wine</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <form class="d-flex ms-3" role="search">
+                                <input class="form-control me-2" type="search" placeholder="Search"
+                                       aria-label="Search">
+                                <button class="btn btn-outline-light" type="submit">Search</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
+
+    <section class="slidearea">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div id="carouselExampleIndicators" class="carousel slide">
+                        <div class="carousel-indicators">
+                            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0"
+                                class="active" aria-current="true" aria-label="Slide 1"></button>
+                            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"
+                                aria-label="Slide 2"></button>
+                            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"
+                                aria-label="Slide 3"></button>
+                        </div>
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="https://imgscf.slidemembers.com/docs/1/1/305/drink_hard_liquor_simple_ppt_templates_304594.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://image.slidesdocs.com/responsive-images/background/poster-drinks-alcohol-glasses-red-wine-theme-powerpoint-background_29bc6749c8__960_540.jpg"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="https://image.slidesharecdn.com/alcoholdrinkingpresentation-111102074721-phpapp02/95/alcohol-drinking-presentation-3-728.jpg?cb=1320222022"
+                                    class="d-block w-100" alt="...">
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="Boxarea">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <a href="whiskey.html" class="box-link">
+                        <div class="box">
+                            <img src="https://www.liquorprice.info/wp-content/uploads/2020/05/SIGNATURE-RARE-AGED-WHISKY-600x662.jpg"
+                                alt="Signature Rare Aged Whisky" class="img-fluid" />
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="wine.html" class="box-link">
+                        <div class="box">
+                            <img src="https://alcoholpriceweb.com/wp-content/uploads/2021/12/bp.jpg"
+                                alt="Bacardi premium" class="img-fluid" />
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+    <footer class="footer">
+  <div class="footer-container">
+    <div class="footer-column">
+      <h3>ABOUT US</h3>
+      <p>
+        Thousands of brands from across the globe with their unique experience
+        and flavors, all under one name — The Barrel House. Founded in 1970, we
+        are now the leading and one of the foremost family-owned liquor brands
+        that provides premium alcohol delivery.
+      </p>
+    </div>
+
+    <div class="footer-column">
+      <h3>LIVING LIQUIDIZ</h3>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Bulk Order</a></li>
+        <li><a href="#">Store Locator</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-column">
+      <h3>FOLLOW US ON</h3>
+      <div class="social-icons">
+        <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+        <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+      </div>
+    </div>
+
+    <div class="footer-column">
+      <h3>USEFUL LINKS</h3>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Disclaimer</a></li>
+        <li><a href="#">Terms of Life</a></li>
+        <li><a href="#">Return Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 The Barrel House. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
