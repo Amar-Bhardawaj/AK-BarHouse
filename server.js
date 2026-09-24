@@ -27,7 +27,7 @@ fs.mkdirSync(dataDir, { recursive: true });
 function validateEnvironment() {
     if (!isProduction) return;
     if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === "replace-this-before-use") throw new Error("Production requires a non-placeholder admin credential.");
-    if (!process.env.DATABASE_PATH) throw new Error("Production requires an explicit DATABASE_PATH.");
+    if (!process.env.DATABASE_URL) throw new Error("Production requires DATABASE_URL for PostgreSQL; sql.js is development-only.");
 }
 validateEnvironment();
 app.disable("x-powered-by");

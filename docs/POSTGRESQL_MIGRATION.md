@@ -1,32 +1,30 @@
-# PostgreSQL migration plan
+# PostgreSQL migration
 
-This is a planning document only. The current application continues to use sql.js.
+Phase 9 adds the PostgreSQL production runtime in `server-postgres.js`, a pooled `pg` connection, and the repeatable migration runner in `db/postgres.js`.
 
-## Current schema to preserve
+## Schema
 
-- `products`: product identity, catalogue fields, price, stock, active state, placeholder state, and `production_ready`.
-- `customers`: customer identity with unique email.
-- `addresses`: customer-owned delivery addresses.
-- `orders`: totals, currency, order state, payment state, provider identifiers, shipping snapshot, idempotency fields, stock/reconciliation state, and timestamps.
-- `order_items`: order/product relationships with name, price, quantity, and subtotal snapshots.
-- `payment_events`: unique provider event IDs for webhook idempotency.
-- `admin_actions`: operational audit records.
+`db/migrations/001_initial.sql` creates `schema_migrations`, `products`, `customers`, `addresses`, `orders`, `order_items`, `payment_events`, and `admin_actions`. It preserves product readiness, stock, order/payment states, provider IDs, idempotency, reconciliation, webhook uniqueness, timestamps, foreign keys, checks, and indexes.
 
-Primary keys, foreign keys, unique constraints, order/payment state rules, idempotency uniqueness, and indexes must remain intact.
+## Runtime selection
 
-## Migration sequence
+- `NODE_ENV=production` or any configured `DATABASE_URL` starts `server-postgres.js` through `server-entry.js`.
+- Production fails if `DATABASE_URL` is absent; it cannot silently use sql.js.
+- Local tests continue to use the existing isolated sql.js path until PostgreSQL is available in the test environment.
+- PostgreSQL development seeding is explicit through `ALLOW_DEVELOPMENT_PRODUCTS=true`; production does not seed the development catalogue automatically.
 
-1. Freeze writes and create verified copies of the SQLite database and `.bak` file.
-2. Create PostgreSQL tables with explicit foreign keys, check constraints, indexes, and UTC timestamp columns.
-3. Import products first, then customers, addresses, orders, and order items; import payment events and admin actions last.
-4. Validate row counts, totals, foreign-key relationships, idempotency keys, and order/payment states.
-5. Run checkout, inventory, admin, webhook-idempotency, and reconciliation tests against PostgreSQL.
-6. Switch `DATABASE_URL` through a controlled deployment and retain the SQLite backup read-only for rollback reference.
+## Data migration
 
-## Code that must change later
+There is deliberately no automatic import of the local SQLite file. Development customers, addresses, orders, and order items must not be promoted into production. A future operator-run import must be explicit, reviewed, and limited to approved product data unless separately authorized.
 
-The sql.js `SQL.Database` initialization, `db.prepare` helpers, `db.export()` persistence, atomic file replacement, SQLite `PRAGMA` setup, and SQLite-specific migration code in `server.js` must be replaced with a PostgreSQL connection pool, parameterized queries, database transactions, and migration tooling.
+Before any import, validate row counts, totals, foreign keys, state values, idempotency keys, payment events, and reconciliation records. Keep the source database read-only as a rollback reference.
+
+## Transaction and concurrency requirements
+
+PostgreSQL order creation runs in one transaction and locks selected product rows with `FOR UPDATE`. Unique constraints protect customer email, order number, public token, idempotency key, provider order ID, and webhook event ID. Admin status changes and audit records share a transaction.
+
+Payment provider verification and full paid-order reconciliation remain deferred until Razorpay TEST credentials and provider verification are enabled. No unpaid order is marked paid or fulfilled.
 
 ## Rollback
 
-Rollback requires stopping writes, restoring the previous application version, and switching back to the last verified database snapshot. Do not attempt bidirectional live writes between SQLite and PostgreSQL.
+Stop writes, restore the last verified PostgreSQL backup/snapshot, and redeploy the last compatible application commit. Do not run bidirectional writes between SQLite and PostgreSQL.

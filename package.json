@@ -2,17 +2,18 @@
   "name": "the-barrel-house",
   "version": "1.0.0",
   "private": true,
-  "description": "The Barrel House Express and sql.js commerce application.",
+  "description": "The Barrel House Express and PostgreSQL commerce application.",
   "type": "module",
   "scripts": {
     "dev": "node --watch server.js",
-    "start": "node server.js",
+    "start": "node server-entry.js",
     "test": "node --test",
     "test:e2e": "node tests/browser-smoke.mjs"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
+    "pg": "^8.23.0",
     "sql.js": "^1.13.0"
   },
   "devDependencies": {

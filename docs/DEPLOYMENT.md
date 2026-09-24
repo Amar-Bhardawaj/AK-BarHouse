@@ -1,5 +1,13 @@
 # Deployment preparation
 
+## Phase 9 runtime
+
+`npm start` uses `server-entry.js`. When `NODE_ENV=production` or `DATABASE_URL` is configured, it starts the PostgreSQL runtime and cannot fall back to the local sql.js database.
+
+Required production settings include `NODE_ENV=production`, `DATABASE_URL`, database SSL/pool settings, non-placeholder admin credentials, approved business/delivery configuration, and HTTPS termination with the correct `TRUST_PROXY` value.
+
+The PostgreSQL runtime exposes `/api/health`, serves only `public/`, closes its pool during shutdown, and keeps Razorpay deferred until test credentials and provider verification are configured.
+
 The application is not deployed by this repository. The intended production shape is:
 
 `Customer → HTTPS/domain → Node.js/Express → PostgreSQL → managed backups/storage → future Razorpay`

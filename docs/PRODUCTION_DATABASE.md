@@ -1,16 +1,20 @@
-# Clean production database procedure
+# Production database initialization
 
-The checked-out development database may contain test customer, address, order, and admin-audit records. It must never be copied into production.
+1. Provision a new empty managed PostgreSQL database.
+2. Set `NODE_ENV=production`, `DATABASE_URL`, database SSL settings, non-placeholder admin credentials, and approved business configuration.
+3. Start the application. The migration runner applies `db/migrations/*.sql` exactly once per version.
+4. Verify `/api/health` reports `database: postgresql`.
+5. Load only approved production product records through an explicit operator-reviewed process. Do not copy the development SQLite database.
+6. Set `production_ready` only for owner-verified products; keep development/demo products unavailable.
+7. Configure and verify delivery rules, legal copy, and business details.
+8. Run the smoke and security checks against the new database.
+9. Configure managed backups and verify a restore before accepting real orders.
+10. Take and verify the initial backup/snapshot.
 
-For the current sql.js development deployment:
+The local `data/barrel-house.sqlite` and `.bak` files contain development/test state and are not production database sources.
 
-1. Stop the application.
-2. Set a new empty `DATABASE_PATH` outside `public/`.
-3. Do not copy `data/barrel-house.sqlite` or `data/barrel-house.sqlite.bak` into that location.
-4. Start once so the schema and seed catalogue are initialized.
-5. Set `ALLOW_DEVELOPMENT_PRODUCTS=false` for any environment that must not sell unverified seed data.
-6. Verify that the new database has no customers, addresses, orders, order items, payment events, or admin actions.
-7. Create verified product records through the approved data-management process before accepting orders.
-8. Back up the clean initialized database according to the hosting provider's protected backup policy.
+The explicit product-only helper is `node scripts/import-products-to-postgres.mjs`. It requires `DATABASE_URL`; in production it additionally requires `CONFIRM_PRODUCT_IMPORT=yes`. It never imports customers, addresses, orders, order items, payment events, or admin actions.
 
-The first production order must not be created until product, inventory, delivery, legal, and operational configuration has been approved by the owner.
+## Recovery expectations
+
+The hosting/database provider must provide automated backups, a defined retention period, point-in-time recovery where available, access-controlled backup storage, and periodic restore drills. The repository does not claim that any provider backup is configured.

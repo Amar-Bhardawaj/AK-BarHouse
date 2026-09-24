@@ -1,16 +1,17 @@
 # The Barrel House
 
-The Barrel House is a small full-stack drinks-commerce application. The Phase 1 static catalogue remains the visual foundation; Phase 2 adds a deliberately compact Express/SQLite commerce backend.
+The Barrel House is a small full-stack drinks-commerce application. The Phase 1 static catalogue remains the visual foundation; Phase 9 adds a PostgreSQL production runtime while retaining an isolated sql.js path for local regression tests.
 
 ## Architecture
 
 - Node.js 24+, Express, and vanilla browser JavaScript.
-- SQLite persistence through `sql.js` (WASM), stored at `data/barrel-house.sqlite`.
+- PostgreSQL persistence through the maintained `pg` driver and a bounded connection pool in production.
+- The existing sql.js/WASM database remains development/test compatibility only; it is not a production fallback.
 - `data/products.json` is the seed source for the initial catalogue.
 - The whiskey/wine `stock: 10` values in `data/products.json` are development-only seed placeholders, not verified inventory; replace them before any real order flow. Cocktail and healthy-drink entries have zero stock because they are concepts, not orderable products.
-- `server.js` owns product availability, stock, quotes, idempotent orders, payment verification, webhooks, reconciliation, and protected admin routes.
+- `server.js` owns the compatibility test runtime; `server-postgres.js` owns the PostgreSQL production runtime with the same public API and state protections.
 - `public/` is the only directory served by Express. Repository source, database, tests, seed data, and package files are intentionally not web-accessible.
-- sql.js remains a single-process development/test database. Writes use an atomic replacement plus `.bak` fallback, but production deployment should migrate to a server-grade relational database with managed backups before real commerce.
+- PostgreSQL order creation uses transactions and row locks for inventory. Versioned SQL migrations live under `db/migrations/`; production initialization and backup expectations are documented in `docs/PRODUCTION_DATABASE.md`.
 - `script.js`, `checkout.js`, and `confirmation.js` provide the browser experience.
 - Razorpay is an integration boundary only; credentials are never committed or exposed except for the public test key returned to the checkout SDK.
 - When Razorpay credentials are absent, checkout runs in payment-deferred mode: it records a pending-payment order, does not call Razorpay, does not mark payment paid, and does not deduct stock.
@@ -42,6 +43,8 @@ See `.env.example`:
 - `AGE_VERIFICATION_REQUIRED`
 - `ALLOW_DEVELOPMENT_PRODUCTS`
 - `DATABASE_PATH`
+- `DATABASE_URL`, `DATABASE_SSL`, `DATABASE_SSL_REJECT_UNAUTHORIZED`
+- `DATABASE_POOL_MAX`, `DATABASE_IDLE_TIMEOUT_MS`, `DATABASE_CONNECTION_TIMEOUT_MS`
 - `ADMIN_USERNAME`
 - `ADMIN_PASSWORD`
 - `RAZORPAY_KEY_ID`
@@ -55,7 +58,7 @@ Use Razorpay sandbox/test credentials only during development. Never commit `.en
 
 ## Data and order flow
 
-The browser sends product IDs and quantities only. The server reloads product prices, active state, and stock from SQLite, recalculates subtotal/delivery/total, validates the customer/address/age confirmation, and creates a `pending` order. Payment is created server-side and the order becomes `confirmed` only after a valid Razorpay signature or verified webhook. Stock is decremented during successful payment confirmation and restored when an admin cancels a paid order.
+The browser sends product IDs and quantities only. The active runtime reloads product prices, active state, and stock from the configured database, recalculates subtotal/delivery/total, validates the customer/address/age confirmation, and creates a `pending` order. Payment is created server-side and the order becomes `confirmed` only after valid provider verification. Stock is not deducted for pending orders.
 
 Order states: `pending`, `confirmed`, `processing`, `shipped`, `delivered`, `cancelled`. Payment-captured orders that cannot reserve stock enter `reconciliation_status=required` and must be recovered from Admin before fulfilment.
 
@@ -90,9 +93,9 @@ The browser smoke test expects a running server. It covers homepage/category/pro
 
 The repository is technically testable but is not production-ready. Before deployment, the owner must supply verified product records (including prices, stock, identifiers, descriptions, active state, and licensed images), approved delivery postal codes and fees, business contact details, and legally approved privacy, terms, returns, age, alcohol-commerce, and disclaimer content. The current values in `data/products.json` are development seed data; cocktail and healthy-drink rows are explicitly non-orderable concepts.
 
-Production should run behind HTTPS with `NODE_ENV=production`, an explicit persistent `DATABASE_PATH`, non-placeholder admin credentials, and `TRUST_PROXY=true` only when the hosting proxy is correctly configured. The server adds baseline security headers, disables the Express fingerprint header, validates required production settings, and closes gracefully on termination.
+Production should run behind HTTPS with `NODE_ENV=production`, `DATABASE_URL`, non-placeholder admin credentials, and `TRUST_PROXY=true` only when the hosting proxy is correctly configured. `npm start` selects PostgreSQL in production, applies migrations, adds baseline security headers, disables the Express fingerprint header, validates required production settings, and closes the PostgreSQL pool gracefully on termination.
 
-The current sql.js design loads the whole database into one Node process and persists exported SQLite bytes to disk. Atomic replacement and `.bak` recovery are useful for development, but this architecture does not provide multi-process coordination, managed backups, replicas, or durable production concurrency. A later PostgreSQL migration must preserve the product/customer/address/order/order-item/payment-event/admin-action relationships, idempotency constraints, state transitions, indexes, and reconciliation fields; it should be preceded by a backup, schema/data mapping, migration rehearsal, and rollback plan.
+The PostgreSQL runtime removes the single-process database limitation. The local sql.js design still loads the whole compatibility database into one Node process and persists exported SQLite bytes to disk; it is not a production fallback. PostgreSQL migration and clean initialization are documented in `docs/POSTGRESQL_MIGRATION.md` and `docs/PRODUCTION_DATABASE.md`.
 
 Deployment still requires a Node.js host with persistent writable storage, HTTPS/domain termination, environment-secret management, log/alert collection, backup verification, health monitoring, and a controlled process manager. No deployment configuration or production credentials are included in this repository.
 
