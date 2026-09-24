@@ -34,6 +34,13 @@ For local order-flow testing, set `DELIVERY_POSTAL_CODES=000000` (or another own
 See `.env.example`:
 
 - `PORT`
+- `NODE_ENV`
+- `TRUST_PROXY`
+- `STORE_NAME`
+- `BUSINESS_EMAIL`, `BUSINESS_PHONE`, `BUSINESS_ADDRESS`, `SUPPORT_EMAIL`
+- `CURRENCY`
+- `AGE_VERIFICATION_REQUIRED`
+- `ALLOW_DEVELOPMENT_PRODUCTS`
 - `DATABASE_PATH`
 - `ADMIN_USERNAME`
 - `ADMIN_PASSWORD`
@@ -42,6 +49,7 @@ See `.env.example`:
 - `RAZORPAY_WEBHOOK_SECRET`
 - `DELIVERY_POSTAL_CODES`
 - `DELIVERY_FEE`
+- `MINIMUM_ORDER_VALUE`
 
 Use Razorpay sandbox/test credentials only during development. Never commit `.env` or real credentials.
 
@@ -75,6 +83,7 @@ The browser smoke test expects a running server. It covers homepage/category/pro
 - Configure `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET` with Razorpay TEST MODE values only for sandbox testing. No credentials are included here.
 - The current no-credential checkout path is intentional for development. It records a reference and clearly reports that online payment is unavailable; Razorpay can be enabled later through the existing payment boundary.
 - Configure owner-approved `DELIVERY_POSTAL_CODES` and `DELIVERY_FEE`; empty serviceability is intentional until business rules are supplied.
+- `ALLOW_DEVELOPMENT_PRODUCTS=true` is for local testing only. Production must leave it false and populate `products.production_ready` only through a verified product-data process.
 - Before production, add managed database storage, HTTPS, backups/restore drills, approved legal text, verified inventory, delivery rules, and production payment credentials.
 
 ## Phase 6 production-readiness notes

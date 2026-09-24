@@ -30,6 +30,8 @@ test("hardening and commerce invariants", async () => {
     const paymentStatus = await request("/api/payments/status"); assert.deepEqual(paymentStatus.body, { mode: "deferred", onlinePaymentAvailable: false, message: "Online payment is currently unavailable. Orders can be recorded as pending payment." });
 
     assert.equal(db.exec("PRAGMA foreign_keys")[0].values[0][0], 1);
+    assert.equal(db.exec("PRAGMA user_version")[0].values[0][0], 2);
+    assert.ok(db.exec("PRAGMA table_info(products)")[0].values.some(row => row[1] === "production_ready"));
     assert.throws(() => db.run("INSERT INTO addresses (customer_id,name,phone,address_line_1,city,state,postal_code,country) VALUES (999,'x','x','x','x','x','x','x')"));
 
     const stockBefore = db.exec("SELECT stock FROM products WHERE id='glenfiddich-12'")[0].values[0][0];
