@@ -83,6 +83,7 @@ function setupProductDetail() {
 }
 async function init() {
     setupNavigation();
+    renderCart();
     document.querySelectorAll("[data-product-grid], [data-featured-products], [data-product-detail]").forEach(node => { node.setAttribute("aria-busy", "true"); if (!node.children.length) node.innerHTML = `<div class="loading-state">Loading the collection…</div>`; });
     try { await loadProducts(); setupFeatured(); setupCatalog(); setupProductDetail(); renderCart(); }
     catch (error) { document.querySelectorAll("[data-product-grid], [data-featured-products], [data-product-detail]").forEach(node => node.innerHTML = `<div class="empty-state"><h3>Collection unavailable</h3><p>We could not load the collection. Please try again shortly.</p></div>`); console.error(error); }
