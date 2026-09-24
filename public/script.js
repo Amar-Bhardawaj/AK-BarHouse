@@ -1,6 +1,8 @@
 let products = [];
 const cartKey = "barrel-house-cart";
 const categoryNames = { whiskey: "Whiskey", wine: "Wine", cocktails: "Cocktails", healthy: "Healthy drinks" };
+const categoryImages = { whiskey: "assets/categories/whiskey.svg", wine: "assets/categories/wine.svg", cocktails: "assets/categories/cocktails.svg", healthy: "assets/categories/healthy.svg" };
+const categoryAlt = { whiskey: "Generic whiskey barrel and tasting glass", wine: "Generic wine bottle and glasses", cocktails: "Generic classic cocktail with citrus garnish", healthy: "Generic fresh non-alcoholic drink with citrus and herbs" };
 const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
 
 function readCart() {
@@ -21,7 +23,11 @@ function productCard(product) {
         ? `<button class="button small" type="button" data-add-to-cart="${escapeHtml(product.id)}">Add to collection</button>`
         : `<a class="button secondary small" href="product.html?id=${encodeURIComponent(product.id)}">View details</a>`;
     const availability = product.available ? "Available to order" : (product.price == null ? "Details to be confirmed" : "Currently unavailable");
-    return `<article class="product-card"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" onerror="this.onerror=null;this.src='3.jpg'"><div class="product-card-body"><h3><a href="product.html?id=${encodeURIComponent(product.id)}">${escapeHtml(product.name)}</a></h3><p>${escapeHtml(product.description)}</p><div class="product-meta"><span>${escapeHtml(product.type)}</span><span>${escapeHtml(product.abv || "ABV to confirm")}</span></div><div class="product-footer"><div><span class="price">${formatPrice(product.price)}</span><small class="availability">${availability}</small></div><div class="card-actions">${action}</div></div></div></article>`;
+    const fallback = categoryImages[product.category] || "3.jpg";
+    const isLegacyReference = /^https?:\/\//i.test(product.image || "") || /(^|\/)3\.jpg$/i.test(product.image || "");
+    const image = isLegacyReference ? fallback : product.image;
+    const imageAlt = isLegacyReference || product.placeholder ? `${categoryAlt[product.category] || `${product.name} concept`} for ${product.name}` : product.name;
+    return `<article class="product-card"><div class="product-card-image"><img src="${escapeHtml(image)}" alt="${escapeHtml(imageAlt)}" width="1200" height="900" loading="lazy" decoding="async" data-fallback="${fallback}" onerror="if(this.dataset.fallback){this.src=this.dataset.fallback;delete this.dataset.fallback}else{this.onerror=null;this.src='3.jpg'}"></div><div class="product-card-body"><h3><a href="product.html?id=${encodeURIComponent(product.id)}">${escapeHtml(product.name)}</a></h3><p>${escapeHtml(product.description)}</p><div class="product-meta"><span>${escapeHtml(product.type)}</span><span>${escapeHtml(product.abv || "ABV to confirm")}</span></div><div class="product-footer"><div><span class="price">${formatPrice(product.price)}</span><small class="availability">${availability}</small></div><div class="card-actions">${action}</div></div></div></article>`;
 }
 function renderProducts(list, target) { if (target) target.innerHTML = list.length ? list.map(productCard).join("") : `<div class="empty-state"><h3>No matches yet</h3><p>Try a different name, category, or search term.</p></div>`; }
 async function loadProducts() {
@@ -79,7 +85,11 @@ function setupProductDetail() {
     const product = getProduct(new URLSearchParams(location.search).get("id"));
     if (!product) { target.innerHTML = `<div class="empty-state"><h1>Product not found</h1><p>This item is unavailable or the link is incomplete.</p><a class="button" href="index.html">Return home</a></div>`; return; }
     const availability = product.available ? "Available to order" : (product.price == null ? "Details to be confirmed" : "Currently unavailable");
-    target.innerHTML = `<div class="detail-layout"><img class="detail-image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" onerror="this.onerror=null;this.src='3.jpg'"><div class="detail-copy"><span class="eyebrow">${escapeHtml(categoryNames[product.category] || product.category)}</span><h1>${escapeHtml(product.name)}</h1><p>${escapeHtml(product.description)}</p><ul class="detail-list"><li><span>Type</span><strong>${escapeHtml(product.type)}</strong></li><li><span>Origin</span><strong>${escapeHtml(product.origin)}</strong></li><li><span>ABV</span><strong>${escapeHtml(product.abv || "To confirm")}</strong></li><li><span>Price</span><strong class="price">${formatPrice(product.price)}</strong></li><li><span>Availability</span><strong>${availability}</strong></li></ul>${product.available ? `<button class="button" type="button" data-add-to-cart="${escapeHtml(product.id)}">Add to collection</button>` : `<p class="muted">This item is not currently available to order.</p>`}</div></div>`;
+    const fallback = categoryImages[product.category] || "3.jpg";
+    const isLegacyReference = /^https?:\/\//i.test(product.image || "") || /(^|\/)3\.jpg$/i.test(product.image || "");
+    const image = isLegacyReference ? fallback : product.image;
+    const imageAlt = isLegacyReference || product.placeholder ? `${categoryAlt[product.category]} for ${product.name}` : product.name;
+    target.innerHTML = `<div class="detail-layout"><img class="detail-image" src="${escapeHtml(image)}" alt="${escapeHtml(imageAlt)}" width="1200" height="900" decoding="async" data-fallback="${fallback}" onerror="if(this.dataset.fallback){this.src=this.dataset.fallback;delete this.dataset.fallback}else{this.onerror=null;this.src='3.jpg'}"><div class="detail-copy"><span class="eyebrow">${escapeHtml(categoryNames[product.category] || product.category)}</span><h1>${escapeHtml(product.name)}</h1><p>${escapeHtml(product.description)}</p><ul class="detail-list"><li><span>Type</span><strong>${escapeHtml(product.type)}</strong></li><li><span>Origin</span><strong>${escapeHtml(product.origin)}</strong></li><li><span>ABV</span><strong>${escapeHtml(product.abv || "To confirm")}</strong></li><li><span>Price</span><strong class="price">${formatPrice(product.price)}</strong></li><li><span>Availability</span><strong>${availability}</strong></li></ul>${product.available ? `<button class="button" type="button" data-add-to-cart="${escapeHtml(product.id)}">Add to collection</button>` : `<p class="muted">This item is not currently available to order.</p>`}</div></div>`;
 }
 async function init() {
     setupNavigation();

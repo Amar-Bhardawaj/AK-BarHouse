@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title description">
+  <title id="title">Whiskey barrel and tasting glass</title>
+  <desc id="description">A generic original illustration of a whiskey barrel and tasting glass in warm amber tones.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#16110d"/><stop offset="1" stop-color="#392719"/></linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f0c978" stop-opacity=".92"/><stop offset="1" stop-color="#9a5c25"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#d6ad5c" stop-opacity=".38"/><stop offset="1" stop-color="#d6ad5c" stop-opacity="0"/></radialGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#000" flood-opacity=".55"/></filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)"/>
+  <circle cx="850" cy="260" r="390" fill="url(#glow)"/>
+  <g opacity=".16" stroke="#f0c978" fill="none"><path d="M0 680C260 520 430 820 710 650s330-70 490-190"/><path d="M0 735C260 575 430 875 710 705s330-70 490-190"/></g>
+  <g filter="url(#shadow)">
+    <g transform="translate(755 290)">
+      <ellipse cx="0" cy="280" rx="235" ry="235" fill="#8a4f24"/>
+      <rect x="-205" y="-245" width="410" height="490" rx="100" fill="#6d3b1d"/>
+      <path d="M-205-150C-80-90-80 90-205 150M205-150C80-90 80 90 205 150" fill="none" stroke="#d6ad5c" stroke-width="25" opacity=".85"/>
+      <ellipse cy="-245" rx="205" ry="55" fill="#a86b36" stroke="#d6ad5c" stroke-width="12"/>
+      <ellipse cy="-245" rx="155" ry="34" fill="none" stroke="#5b2e16" stroke-width="7" opacity=".7"/>
+      <path d="M-120-280V-210M0-292V-198M120-280V-210" stroke="#e0b96e" stroke-width="8" opacity=".65"/>
+    </g>
+    <g transform="translate(245 190)">
+      <path d="M-75 0H75L55 90C45 150 75 190 75 260C75 405 50 520 0 520S-75 405-75 260C-75 190-45 150-55 90Z" fill="url(#amber)" stroke="#f4dda8" stroke-width="8"/>
+      <path d="M-34 0H34L24 82H-24Z" fill="#d8c5a0" opacity=".8"/>
+      <path d="M-45 245C-10 225 35 220 65 205" fill="none" stroke="#fff1c9" stroke-width="9" opacity=".45"/>
+      <ellipse cx="0" cy="470" rx="70" ry="20" fill="#120e0a" opacity=".55"/>
+    </g>
+  </g>
+  <rect x="42" y="42" width="1116" height="816" rx="24" fill="none" stroke="#d6ad5c" stroke-opacity=".22" stroke-width="2"/>
+</svg>

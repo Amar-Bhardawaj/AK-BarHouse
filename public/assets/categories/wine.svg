@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title description">
+  <title id="title">Wine bottle and glasses</title>
+  <desc id="description">A generic original illustration of wine bottles and glasses in deep burgundy and gold tones.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#130e13"/><stop offset="1" stop-color="#3c1a28"/></linearGradient>
+    <linearGradient id="wine" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#9a2943"/><stop offset="1" stop-color="#350a18"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3eadb" stop-opacity=".35"/><stop offset="1" stop-color="#d6ad5c" stop-opacity=".08"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#000" flood-opacity=".55"/></filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)"/>
+  <g opacity=".18" stroke="#d6ad5c" fill="none"><circle cx="180" cy="130" r="300"/><circle cx="180" cy="130" r="240"/><circle cx="180" cy="130" r="180"/></g>
+  <ellipse cx="610" cy="780" rx="480" ry="65" fill="#080607" opacity=".55"/>
+  <g filter="url(#shadow)">
+    <g transform="translate(505 105)">
+      <path d="M-75 0H75V125L110 190V620C110 665 85 690 0 690S-110 665-110 620V190L-75 125Z" fill="url(#wine)" stroke="#c78b72" stroke-width="7"/>
+      <path d="M-52 0H52V110H-52Z" fill="#d5c6a8" opacity=".82"/>
+      <rect x="-82" y="320" width="164" height="190" rx="6" fill="#eadfc9"/>
+      <path d="M0 370C-55 440-40 475 0 470C40 475 55 440 0 370Z" fill="#741b34"/>
+      <path d="M-50 500H50" stroke="#9a2943" stroke-width="5"/>
+      <path d="M-82 235C-45 205-40 260 0 255S45 205 82 235" fill="none" stroke="#d6ad5c" stroke-opacity=".35" stroke-width="10"/>
+    </g>
+    <g transform="translate(250 315)">
+      <path d="M-150 0H150L100 245C88 315 45 335 0 335S-88 315-100 245Z" fill="url(#glass)" stroke="#e7d9c1" stroke-width="8"/>
+      <path d="M-112 88H112L78 244C70 285 40 300 0 300S-70 285-78 244Z" fill="#7a1731" opacity=".88"/>
+      <path d="M0 300V475M-95 485H95" stroke="#e7d9c1" stroke-width="9" stroke-linecap="round"/>
+      <ellipse cy="490" rx="120" ry="20" fill="#d6ad5c" opacity=".2"/>
+    </g>
+    <g transform="translate(840 350)">
+      <path d="M-130 0H130L88 220C78 282 42 298 0 298S-78 282-88 220Z" fill="url(#glass)" stroke="#e7d9c1" stroke-width="8"/>
+      <path d="M-96 78H96L68 215C61 250 36 264 0 264S-61 250-68 215Z" fill="#a92c49" opacity=".8"/>
+      <path d="M0 298V450M-82 460H82" stroke="#e7d9c1" stroke-width="8" stroke-linecap="round"/>
+      <ellipse cy="475" rx="105" ry="18" fill="#d6ad5c" opacity=".2"/>
+    </g>
+  </g>
+  <rect x="42" y="42" width="1116" height="816" rx="24" fill="none" stroke="#d6ad5c" stroke-opacity=".22" stroke-width="2"/>
+</svg>

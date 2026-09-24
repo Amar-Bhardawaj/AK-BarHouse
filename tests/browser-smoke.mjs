@@ -12,6 +12,13 @@ page.on("response", response => { if (response.status() >= 400) httpErrors.push(
 
 await page.setViewportSize({ width: 1280, height: 900 });
 await page.goto(`${baseUrl}/index.html`);
+assert.equal(await page.locator(".category-card img").count(), 4);
+for (const image of await page.locator(".category-card img").all()) {
+    assert.ok(await image.evaluate(node => node.complete && node.naturalWidth > 0));
+    assert.equal(await image.evaluate(node => getComputedStyle(node).objectFit), "cover");
+}
+await page.locator("[data-featured-products] .product-card img").first().waitFor({ state: "visible" });
+assert.ok(await page.locator("[data-featured-products] .product-card img").first().evaluate(node => node.complete && node.naturalWidth > 0));
 await page.getByRole("link", { name: "Whiskey" }).first().click();
 await page.getByRole("link", { name: "Glenfiddich 12 Year Old" }).click();
 await page.getByRole("button", { name: "Add to collection" }).click();
@@ -46,10 +53,12 @@ assert.match(await page.locator("h1").innerText(), /Pending payment order/);
 assert.match(await page.locator("body").innerText(), /Online payment is currently unavailable|pending payment/i);
 assert.equal(await page.locator("script[src*='razorpay']").count(), 0);
 
-for (const width of [360, 412]) {
+for (const width of [360, 390, 412]) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto(`${baseUrl}/index.html`);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `Horizontal overflow at ${width}px`);
+    const categoryBox = await page.locator(".category-card").first().boundingBox();
+    assert.ok(categoryBox && categoryBox.width > 0 && categoryBox.height > 0, `Category card unavailable at ${width}px`);
     await page.keyboard.press("Tab");
     assert.ok(await page.evaluate(() => document.activeElement !== document.body), `Keyboard focus did not move at ${width}px`);
 }

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title description">
+  <title id="title">Classic cocktail</title>
+  <desc id="description">A generic original illustration of a coupe cocktail with citrus and aromatic garnish.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#14110f"/><stop offset="1" stop-color="#36251b"/></linearGradient>
+    <linearGradient id="liquid" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d9903e"/><stop offset="1" stop-color="#8b351f"/></linearGradient>
+    <radialGradient id="halo"><stop stop-color="#d6ad5c" stop-opacity=".38"/><stop offset="1" stop-color="#d6ad5c" stop-opacity="0"/></radialGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="24" stdDeviation="25" flood-color="#000" flood-opacity=".6"/></filter>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)"/>
+  <circle cx="600" cy="410" r="400" fill="url(#halo)"/>
+  <g opacity=".14" fill="none" stroke="#f0c978"><circle cx="600" cy="410" r="330"/><circle cx="600" cy="410" r="275"/><path d="M600 30V790M220 410H980" stroke-dasharray="8 20"/></g>
+  <ellipse cx="600" cy="790" rx="310" ry="55" fill="#090807" opacity=".6"/>
+  <g filter="url(#shadow)">
+    <path d="M260 315H940L780 570C750 620 680 642 600 642S450 620 420 570Z" fill="#f1e5d0" fill-opacity=".14" stroke="#efe1ca" stroke-width="10"/>
+    <path d="M310 385H890L760 565C735 600 675 615 600 615S465 600 440 565Z" fill="url(#liquid)" opacity=".95"/>
+    <ellipse cx="600" cy="385" rx="290" ry="42" fill="#f0c978" fill-opacity=".48" stroke="#f7deb0" stroke-width="7"/>
+    <path d="M600 642V730M450 745H750" stroke="#efe1ca" stroke-width="12" stroke-linecap="round"/>
+    <ellipse cx="600" cy="750" rx="175" ry="24" fill="#d6ad5c" fill-opacity=".2" stroke="#efe1ca" stroke-width="8"/>
+    <path d="M690 390L830 170" stroke="#d4b47b" stroke-width="13" stroke-linecap="round"/>
+    <g transform="translate(850 145)">
+      <circle r="78" fill="#d68b32" stroke="#f4c979" stroke-width="9"/>
+      <circle r="58" fill="none" stroke="#f6d99d" stroke-width="7" opacity=".7"/>
+      <path d="M-56 0H56M0-56V56" stroke="#f6d99d" stroke-width="5" opacity=".65"/>
+    </g>
+    <path d="M500 605C570 540 620 540 700 600" fill="none" stroke="#708b58" stroke-width="14" stroke-linecap="round"/>
+    <path d="M520 595C555 530 610 535 640 575" fill="none" stroke="#9bb078" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <rect x="42" y="42" width="1116" height="816" rx="24" fill="none" stroke="#d6ad5c" stroke-opacity=".22" stroke-width="2"/>
+</svg>
