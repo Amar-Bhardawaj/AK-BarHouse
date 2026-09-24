@@ -5,5 +5,18 @@ const token = params.get("token");
 const deferred = params.get("mode") === "deferred";
 const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
 const money = value => `₹ ${Number(value || 0).toLocaleString("en-IN")}`;
-if (!order || !token) target.innerHTML = `<span class="eyebrow">Order status</span><h1>Order details unavailable</h1><p class="muted">The confirmation link is incomplete.</p><a class="button" href="index.html">Return home</a>`;
-else fetch(`/api/orders/public/${encodeURIComponent(order)}?token=${encodeURIComponent(token)}`).then(response => response.json().then(data => ({ ok: response.ok, data }))).then(({ ok, data }) => { if (!ok) throw new Error(data.error); const pendingCopy = deferred || data.payment_status === "pending"; target.innerHTML = `<span class="eyebrow">Order recorded</span><h1>${pendingCopy ? "Pending payment order" : "Payment verified"}</h1><p>Your order number is <strong>${escapeHtml(data.order_number)}</strong>.</p><p class="muted">Status: ${escapeHtml(data.status)}. Payment: ${escapeHtml(data.payment_status)}.</p>${pendingCopy ? "<p>Online payment is currently unavailable. Your order has been recorded as pending payment; no payment was taken and inventory was not deducted.</p>" : ""}<div class="checkout-total"><strong>Total</strong><strong>${money(data.total)}</strong></div><a class="button" href="index.html">Return to The Barrel House</a>`; }).catch(error => { target.innerHTML = `<span class="eyebrow">Order status</span><h1>Unable to load order</h1><p class="muted">${escapeHtml(error.message)}</p><a class="button" href="index.html">Return home</a>`; });
+
+if (!order || !token) {
+    target.innerHTML = `<span class="eyebrow">Order status</span><h1>Order details unavailable</h1><p class="muted">The confirmation link is incomplete.</p><a class="button" href="index.html">Return home</a>`;
+} else {
+    fetch(`/api/orders/public/${encodeURIComponent(order)}?token=${encodeURIComponent(token)}`)
+        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok) throw new Error(data.error);
+            const pendingCopy = deferred || data.payment_status === "pending";
+            const items = (data.items || []).map(item => `<li>${escapeHtml(item.product_name_snapshot)} × ${Number(item.quantity)} <strong>${money(item.subtotal)}</strong></li>`).join("");
+            const address = data.address?.city ? `${escapeHtml(data.address.city)}, ${escapeHtml(data.address.state)} ${escapeHtml(data.address.postal_code)}` : "Delivery details recorded";
+            target.innerHTML = `<span class="eyebrow">Order recorded</span><h1>${pendingCopy ? "Pending payment order" : "Payment verified"}</h1><p>Your order reference is <strong>${escapeHtml(data.order_number)}</strong>.</p><div class="status-grid"><div><span>Status</span><strong>${escapeHtml(data.status)}</strong></div><div><span>Payment</span><strong>${escapeHtml(data.payment_status)}</strong></div></div><h2>Items</h2><ul class="confirmation-items">${items || "<li>Item details unavailable</li>"}</ul><div class="checkout-total"><strong>Total</strong><strong>${money(data.total)}</strong></div><p>Delivery to: ${address}</p>${pendingCopy ? "<p class=\"payment-notice\"><strong>Online payment is currently unavailable.</strong> Your order is recorded as pending payment. No payment was taken and inventory was not deducted.</p>" : "<p class=\"success-notice\">Payment has been verified. Further order updates will follow the configured process.</p>"}<a class="button" href="index.html">Return to The Barrel House</a>`;
+        })
+        .catch(error => { target.innerHTML = `<span class="eyebrow">Order status</span><h1>Unable to load order</h1><p class="muted">${escapeHtml(error.message)}</p><a class="button" href="index.html">Return home</a>`; });
+}
