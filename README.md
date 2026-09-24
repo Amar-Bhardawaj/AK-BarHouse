@@ -66,7 +66,7 @@ npm audit
 npm ci --dry-run
 ```
 
-The browser smoke test expects a running server. It covers homepage/category/product navigation, adding to cart, search, checkout validation, mobile navigation, cart persistence after reload, and asserts that the expected checkout error is specifically the order API response rather than an unrelated HTTP 400.
+The browser smoke test expects a running server. It covers homepage/category/product navigation, adding to cart, search, payment-deferred checkout, pending-order confirmation, admin order visibility, mobile navigation, cart persistence after reload, keyboard focus, and horizontal-overflow checks at 360px, 390px, and 412px. Start the test server with an owner-approved test code such as `DELIVERY_POSTAL_CODES=999999` and pass `TEST_POSTAL_CODE=999999` to exercise the complete deferred order flow.
 
 ## Hardening notes
 
@@ -76,6 +76,16 @@ The browser smoke test expects a running server. It covers homepage/category/pro
 - The current no-credential checkout path is intentional for development. It records a reference and clearly reports that online payment is unavailable; Razorpay can be enabled later through the existing payment boundary.
 - Configure owner-approved `DELIVERY_POSTAL_CODES` and `DELIVERY_FEE`; empty serviceability is intentional until business rules are supplied.
 - Before production, add managed database storage, HTTPS, backups/restore drills, approved legal text, verified inventory, delivery rules, and production payment credentials.
+
+## Phase 6 production-readiness notes
+
+The repository is technically testable but is not production-ready. Before deployment, the owner must supply verified product records (including prices, stock, identifiers, descriptions, active state, and licensed images), approved delivery postal codes and fees, business contact details, and legally approved privacy, terms, returns, age, alcohol-commerce, and disclaimer content. The current values in `data/products.json` are development seed data; cocktail and healthy-drink rows are explicitly non-orderable concepts.
+
+Production should run behind HTTPS with `NODE_ENV=production`, an explicit persistent `DATABASE_PATH`, non-placeholder admin credentials, and `TRUST_PROXY=true` only when the hosting proxy is correctly configured. The server adds baseline security headers, disables the Express fingerprint header, validates required production settings, and closes gracefully on termination.
+
+The current sql.js design loads the whole database into one Node process and persists exported SQLite bytes to disk. Atomic replacement and `.bak` recovery are useful for development, but this architecture does not provide multi-process coordination, managed backups, replicas, or durable production concurrency. A later PostgreSQL migration must preserve the product/customer/address/order/order-item/payment-event/admin-action relationships, idempotency constraints, state transitions, indexes, and reconciliation fields; it should be preceded by a backup, schema/data mapping, migration rehearsal, and rollback plan.
+
+Deployment still requires a Node.js host with persistent writable storage, HTTPS/domain termination, environment-secret management, log/alert collection, backup verification, health monitoring, and a controlled process manager. No deployment configuration or production credentials are included in this repository.
 
 ## Business and production blockers
 

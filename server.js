@@ -16,10 +16,30 @@ const backupPath = `${databasePath}.bak`;
 const seedPath = path.join(dataDir, "products.json");
 const port = Number(process.env.PORT || 3000);
 const app = express();
+const isProduction = process.env.NODE_ENV === "production";
 const orderStates = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"];
 const allowedTransitions = { pending: ["confirmed", "cancelled"], confirmed: ["processing", "cancelled"], processing: ["shipped", "cancelled"], shipped: ["delivered"], delivered: [], cancelled: [] };
 const SQL = await initSqlJs({ locateFile: file => path.join(rootDir, "node_modules", "sql.js", "dist", file) });
 fs.mkdirSync(dataDir, { recursive: true });
+
+function validateEnvironment() {
+    if (!isProduction) return;
+    if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === "replace-this-before-use") throw new Error("Production requires a non-placeholder admin credential.");
+    if (!process.env.DATABASE_PATH) throw new Error("Production requires an explicit DATABASE_PATH.");
+}
+validateEnvironment();
+app.disable("x-powered-by");
+app.set("trust proxy", process.env.TRUST_PROXY === "true");
+app.use((req, res, next) => {
+    res.set({
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+    });
+    if (isProduction) res.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    next();
+});
 
 function loadDatabase() {
     if (!fs.existsSync(databasePath)) return new SQL.Database();
@@ -108,4 +128,9 @@ app.use(express.static(publicDir,{extensions:["html"]}));
 app.use((req,res)=>res.status(404).json({error:"Not found."}));
 app.use((error,req,res,next)=>{console.error("Unhandled request error:",error.message);res.status(500).json({error:"Unexpected server error."});});
 export { app, db, saveDatabase, markPaymentPaid };
-if(process.argv[1]===__filename)app.listen(port,()=>console.log(`The Barrel House server is running at http://localhost:${port}`));
+if (process.argv[1] === __filename) {
+    const server = app.listen(port, () => console.log(`The Barrel House server is running at http://localhost:${port}`));
+    const shutdown = signal => { console.log(`Received ${signal}; closing the server.`); server.close(() => process.exit(0)); };
+    process.once("SIGTERM", () => shutdown("SIGTERM"));
+    process.once("SIGINT", () => shutdown("SIGINT"));
+}
