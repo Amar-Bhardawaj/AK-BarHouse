@@ -1,1 +1,23 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Protected administration for The Barrel House."><title>Admin | The Barrel House</title><link rel="stylesheet" href="styles.css"></head><body><main class="section"><div class="container"><div class="section-heading"><div><span class="eyebrow">Protected area</span><h1>Operations</h1></div><a class="button secondary" href="index.html">Back to site</a></div><form class="admin-login info-card" id="admin-login"><h2>Admin sign-in</h2><label for="admin-user">Username</label><input id="admin-user" required value="admin"><label for="admin-pass">Password</label><input id="admin-pass" type="password" required><button class="button" type="submit">Open dashboard</button><p class="form-message" id="admin-message" role="alert"></p></form><section class="admin-dashboard" id="admin-dashboard" hidden><div class="info-card"><h2>Products and stock</h2><div class="admin-table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Active</th><th>Action</th></tr></thead><tbody id="admin-products"></tbody></table></div></div><div class="info-card"><h2>Orders</h2><div class="admin-table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Payment</th><th>Status</th><th>Action</th></tr></thead><tbody id="admin-orders"></tbody></table></div></div><div class="info-card" id="admin-order-detail"><h2>Order detail</h2><p class="muted">Select an order to view its delivery and line-item details.</p></div></section></div></main><script src="admin.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Protected administration for The Barrel House.">
+    <title>Admin | The Barrel House</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="utility-shell">
+    <header class="utility-header"><div class="nav-wrap"><a class="brand" href="index.html" aria-label="The Barrel House home"><img src="logo.png" alt="The Barrel House logo" width="44" height="44"><span><strong>The Barrel House</strong><small>Protected operations</small></span></a><a class="button secondary small" href="index.html">Back to site</a></div></header>
+    <main class="utility-main"><div class="container">
+        <div class="section-heading"><div><span class="eyebrow">Protected area</span><h1>Operations</h1></div></div>
+        <form class="admin-login info-card" id="admin-login"><span class="eyebrow">Authorisation</span><h2>Admin sign-in</h2><label for="admin-user">Username</label><input id="admin-user" autocomplete="username" required value="admin"><label for="admin-pass">Password</label><input id="admin-pass" type="password" autocomplete="current-password" required><button class="button" type="submit">Open dashboard</button><p class="form-message" id="admin-message" role="alert" aria-live="polite"></p></form>
+        <section class="admin-dashboard" id="admin-dashboard" aria-labelledby="dashboard-title" hidden><h2 class="sr-only" id="dashboard-title">Operations dashboard</h2>
+            <div class="info-card"><span class="eyebrow">Catalogue</span><h2>Products and stock</h2><div class="admin-table-wrap"><table><caption class="sr-only">Products and current stock</caption><thead><tr><th scope="col">Product</th><th scope="col">Category</th><th scope="col">Stock</th><th scope="col">Active</th><th scope="col">Action</th></tr></thead><tbody id="admin-products"></tbody></table></div></div>
+            <div class="info-card"><span class="eyebrow">Fulfilment</span><h2>Orders</h2><div class="admin-table-wrap"><table><caption class="sr-only">Orders and fulfilment status</caption><thead><tr><th scope="col">Order</th><th scope="col">Customer</th><th scope="col">Total</th><th scope="col">Payment</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody id="admin-orders"></tbody></table></div></div>
+            <div class="info-card" id="admin-order-detail"><span class="eyebrow">Selected order</span><h2>Order detail</h2><p class="muted">Select an order to view its delivery and line-item details.</p></div>
+        </section>
+    </div></main>
+    <script src="admin.js"></script>
+</body>
+</html>

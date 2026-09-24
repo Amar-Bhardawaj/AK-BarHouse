@@ -13,7 +13,8 @@ function readCheckoutCart() {
     } catch { localStorage.removeItem("barrel-house-cart"); return []; }
 }
 let checkoutCart = readCheckoutCart();
-function showMessage(message, isError = true) { checkoutMessage.textContent = message; checkoutMessage.className = `form-message${isError ? " error" : ""}`; }
+function showMessage(message, state = "error") { checkoutMessage.textContent = message; checkoutMessage.className = `form-message is-${state}`; }
+function setQuotePending() { for (const id of ["checkout-subtotal", "checkout-delivery", "checkout-total"]) document.querySelector(`#${id}`).textContent = "—"; }
 function setBusy(isBusy) { if (!submitButton) return; submitButton.disabled = isBusy; submitButton.setAttribute("aria-busy", String(isBusy)); submitButton.textContent = isBusy ? "Recording order…" : "Record pending order"; }
 function renderSummary() {
     const items = checkoutCart.map(item => ({ ...item, product: checkoutProducts.find(product => product.id === item.id) })).filter(item => item.product?.available);
@@ -22,6 +23,7 @@ function renderSummary() {
     summary.innerHTML = items.map(item => `<div class="checkout-item"><span>${escapeHtml(item.product.name)} × ${item.quantity}</span><strong>${money(item.product.price * item.quantity)}</strong></div>`).join("");
 }
 async function loadSummary() {
+    setQuotePending();
     document.querySelector("#checkout-items").innerHTML = `<p class="loading-state">Preparing your order summary…</p>`;
     const response = await fetch("/api/products");
     if (!response.ok) throw new Error("Collection could not be loaded.");
@@ -34,6 +36,7 @@ async function loadSummary() {
     const data = await quoteResponse.json();
     if (!quoteResponse.ok) throw new Error(data.error || "The order quote could not be loaded.");
     checkoutQuote = data;
+    setQuotePending();
     document.querySelector("#checkout-subtotal").textContent = money(data.subtotal);
     document.querySelector("#checkout-delivery").textContent = data.serviceable ? money(data.delivery_fee) : "Service area to be confirmed";
     document.querySelector("#checkout-total").textContent = money(data.total);
@@ -44,7 +47,7 @@ async function createPayment(order) {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Payment setup failed.");
     await new Promise((resolve, reject) => { const script = document.createElement("script"); script.src = "https://checkout.razorpay.com/v1/checkout.js"; script.onload = resolve; script.onerror = () => reject(new Error("Razorpay checkout could not load.")); document.head.append(script); });
-    const checkout = new Razorpay({ key: data.keyId, amount: data.amount, currency: data.currency, name: "The Barrel House", description: `Order ${data.orderNumber}`, order_id: data.razorpayOrderId, handler: async payment => { try { const verify = await fetch("/api/payments/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: order.id, ...payment }) }); const result = await verify.json(); if (!verify.ok) throw new Error(result.error || "Payment verification failed."); localStorage.removeItem("barrel-house-cart"); location.href = `confirmation.html?order=${encodeURIComponent(result.orderNumber)}&token=${encodeURIComponent(result.publicToken)}`; } catch (error) { showMessage(error.message); setBusy(false); } }, modal: { ondismiss: () => { showMessage("Payment was cancelled. Your order remains pending and has not been charged."); setBusy(false); } } });
+    const checkout = new Razorpay({ key: data.keyId, amount: data.amount, currency: data.currency, name: "The Barrel House", description: `Order ${data.orderNumber}`, order_id: data.razorpayOrderId, handler: async payment => { try { const verify = await fetch("/api/payments/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: order.id, ...payment }) }); const result = await verify.json(); if (!verify.ok) throw new Error(result.error || "Payment verification failed."); localStorage.removeItem("barrel-house-cart"); location.href = `confirmation.html?order=${encodeURIComponent(result.orderNumber)}&token=${encodeURIComponent(result.publicToken)}`; } catch (error) { showMessage(error.message); setBusy(false); } }, modal: { ondismiss: () => { showMessage("Payment was cancelled. Your order remains pending and has not been charged.", "info"); setBusy(false); } } });
     checkout.open();
 }
 async function handleDeferredOrder(order) { localStorage.removeItem("barrel-house-cart"); location.href = `confirmation.html?order=${encodeURIComponent(order.orderNumber)}&token=${encodeURIComponent(order.publicToken)}&mode=deferred`; }
@@ -54,7 +57,7 @@ checkoutForm?.addEventListener("submit", async event => {
     if (submitButton?.disabled) return;
     if (!checkoutForm.reportValidity()) return;
     setBusy(true);
-    showMessage("Validating availability, delivery, and order details…", false);
+    showMessage("Validating availability, delivery, and order details…", "info");
     const data = new FormData(checkoutForm);
     const payload = { customer: { name: data.get("name"), email: data.get("email"), phone: data.get("phone") }, address: { address_line_1: data.get("address_line_1"), address_line_2: data.get("address_line_2"), city: data.get("city"), state: data.get("state"), postal_code: data.get("postal_code"), country: data.get("country") }, age_confirmed: document.querySelector("#age-confirmed").checked, items: checkoutCart };
     const idempotencyKey = sessionStorage.getItem("barrel-house-checkout-key") || crypto.randomUUID();
@@ -69,4 +72,4 @@ checkoutForm?.addEventListener("submit", async event => {
     } catch (error) { showMessage(error.message); setBusy(false); }
 });
 
-loadSummary().catch(error => { showMessage(error.message); if (submitButton) submitButton.disabled = true; });
+loadSummary().catch(error => { setQuotePending(); showMessage(error.message); if (submitButton) submitButton.disabled = true; });

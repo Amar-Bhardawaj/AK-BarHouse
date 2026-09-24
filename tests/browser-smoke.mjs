@@ -23,10 +23,15 @@ await page.getByRole("link", { name: "Whiskey" }).first().click();
 await page.getByRole("link", { name: "Glenfiddich 12 Year Old" }).click();
 await page.getByRole("button", { name: "Add to collection" }).click();
 assert.match(await page.locator(".cart-panel").innerText(), /Glenfiddich 12 Year Old/);
+assert.equal(await page.evaluate(() => document.activeElement?.getAttribute("aria-label")), "Close collection");
+await page.keyboard.press("Escape");
+assert.equal(await page.locator("[data-cart].is-open").count(), 0);
+assert.equal(await page.evaluate(() => document.activeElement?.dataset.addToCart), "glenfiddich-12");
 await page.setViewportSize({ width: 390, height: 844 });
 await page.goto(`${baseUrl}/whiskey.html`);
 await page.getByRole("button", { name: "Toggle navigation" }).click();
 assert.equal(await page.locator(".site-nav.is-open").count(), 1);
+assert.equal(await page.getByRole("button", { name: "Toggle navigation" }).getAttribute("aria-expanded"), "true");
 await page.reload();
 assert.equal(await page.locator("[data-cart-count]").first().innerText(), "1");
 
@@ -59,6 +64,8 @@ for (const width of [360, 390, 412]) {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `Horizontal overflow at ${width}px`);
     const categoryBox = await page.locator(".category-card").first().boundingBox();
     assert.ok(categoryBox && categoryBox.width > 0 && categoryBox.height > 0, `Category card unavailable at ${width}px`);
+    const closeTarget = await page.getByRole("button", { name: "Close collection" }).boundingBox().catch(() => null);
+    if (closeTarget) assert.ok(closeTarget.width >= 44 && closeTarget.height >= 44, `Cart target too small at ${width}px`);
     await page.keyboard.press("Tab");
     assert.ok(await page.evaluate(() => document.activeElement !== document.body), `Keyboard focus did not move at ${width}px`);
 }
