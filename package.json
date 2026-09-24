@@ -4,6 +4,9 @@
   "private": true,
   "description": "The Barrel House Express and PostgreSQL commerce application.",
   "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server-entry.js",

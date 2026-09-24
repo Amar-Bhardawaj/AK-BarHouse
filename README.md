@@ -4,7 +4,7 @@ The Barrel House is a small full-stack drinks-commerce application. The Phase 1 
 
 ## Architecture
 
-- Node.js 24+, Express, and vanilla browser JavaScript.
+- Node.js 24.x, Express, and vanilla browser JavaScript.
 - PostgreSQL persistence through the maintained `pg` driver and a bounded connection pool in production.
 - The existing sql.js/WASM database remains development/test compatibility only; it is not a production fallback.
 - `data/products.json` is the seed source for the initial catalogue.

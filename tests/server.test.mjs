@@ -25,6 +25,10 @@ test.after(async () => { await new Promise(resolve => server.close(resolve)); })
 
 test("hardening and commerce invariants", async () => {
     const health = await request("/api/health"); assert.equal(health.response.status, 200); assert.equal(health.body.ok, true);
+    assert.equal(health.response.headers.get("x-content-type-options"), "nosniff");
+    assert.equal(health.response.headers.get("x-frame-options"), "DENY");
+    assert.match(health.response.headers.get("content-security-policy"), /default-src 'self'/);
+    assert.equal(health.response.headers.get("x-powered-by"), null);
     const products = await request("/api/products"); assert.equal(products.response.status, 200); assert.ok(products.body.length > 0);
     const product = await request("/api/products/glenfiddich-12"); assert.equal(product.response.status, 200);
     const paymentStatus = await request("/api/payments/status"); assert.deepEqual(paymentStatus.body, { mode: "deferred", onlinePaymentAvailable: false, message: "Online payment is currently unavailable. Orders can be recorded as pending payment." });

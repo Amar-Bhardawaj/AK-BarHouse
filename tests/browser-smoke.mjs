@@ -7,8 +7,10 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 page.setDefaultTimeout(5000);
 const consoleErrors = [];
 const httpErrors = [];
+const securityErrors = [];
 page.on("console", message => { if (message.type() === "error") consoleErrors.push(message.text()); });
 page.on("response", response => { if (response.status() >= 400) httpErrors.push({ url: response.url(), status: response.status() }); });
+page.on("console", message => { if (/Content Security Policy/i.test(message.text())) securityErrors.push(message.text()); });
 
 await page.setViewportSize({ width: 1280, height: 900 });
 await page.goto(`${baseUrl}/index.html`);
@@ -79,6 +81,7 @@ await page.locator("[data-view-order]").first().click();
 assert.match(await page.locator("#admin-order-detail").innerText(), /Order/);
 
 assert.equal(consoleErrors.length, 0, `Unexpected browser console errors: ${consoleErrors.join(" | ")}`);
+assert.equal(securityErrors.length, 0, `Content Security Policy violations: ${securityErrors.join(" | ")}`);
 assert.equal(httpErrors.length, 0, `Unexpected HTTP errors: ${JSON.stringify(httpErrors)}`);
 await browser.close();
 console.log("Browser smoke tests passed.");

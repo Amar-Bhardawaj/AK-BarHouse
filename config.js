@@ -12,6 +12,15 @@ function isPlaceholder(value) {
     return ["replace-this-before-use", "change-me", "changeme", "password", "test-password"].includes(String(value || "").toLowerCase());
 }
 
+export function validateProductionDatabaseConfig(env = process.env) {
+    const missing = [];
+    if (env.NODE_ENV !== "production") missing.push("NODE_ENV=production");
+    if (!env.DATABASE_URL) missing.push("DATABASE_URL");
+    if (env.DATABASE_SSL !== "true") missing.push("DATABASE_SSL=true");
+    if (env.DATABASE_SSL_REJECT_UNAUTHORIZED !== "true") missing.push("DATABASE_SSL_REJECT_UNAUTHORIZED=true");
+    if (missing.length) throw new Error(`Production database configuration is incomplete: ${missing.join(", ")}.`);
+}
+
 export function validateProductionConfig(env = process.env) {
     const missing = [];
     if (env.NODE_ENV !== "production") missing.push("NODE_ENV=production");

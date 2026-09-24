@@ -37,7 +37,8 @@ app.use((req, res, next) => {
         "X-Content-Type-Options": "nosniff",
         "X-Frame-Options": "DENY",
         "Referrer-Policy": "strict-origin-when-cross-origin",
-        "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+        "Content-Security-Policy": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' https://checkout.razorpay.com; style-src 'self'; img-src 'self' data:; connect-src 'self' https://api.razorpay.com"
     });
     if (isProduction) res.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
     next();

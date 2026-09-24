@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createConfig, validateProductionConfig, validateProductionProductImport } from "../config.js";
+import { createConfig, validateProductionConfig, validateProductionDatabaseConfig, validateProductionProductImport } from "../config.js";
 
 test("production configuration does not enable development products by default", () => {
     const config = createConfig({ NODE_ENV: "production", CURRENCY: "INR" });
@@ -29,6 +29,11 @@ test("production configuration rejects unsafe or incomplete settings", () => {
         ALLOW_DEVELOPMENT_PRODUCTS: "false",
         DELIVERY_POSTAL_CODES: "000000"
     }));
+});
+
+test("production database validation is reusable by operational jobs", () => {
+    assert.throws(() => validateProductionDatabaseConfig({ NODE_ENV: "production", DATABASE_URL: "postgres://example", DATABASE_SSL: "false", DATABASE_SSL_REJECT_UNAUTHORIZED: "true" }), /DATABASE_SSL=true/);
+    assert.doesNotThrow(() => validateProductionDatabaseConfig({ NODE_ENV: "production", DATABASE_URL: "postgres://example", DATABASE_SSL: "true", DATABASE_SSL_REJECT_UNAUTHORIZED: "true" }));
 });
 
 test("production product import rejects development or incomplete records", () => {

@@ -1,8 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { Pool } from "pg";
 
-const migrationsDirectory = path.join(process.cwd(), "db", "migrations");
+const migrationsDirectory = path.join(path.dirname(fileURLToPath(import.meta.url)), "migrations");
+const migrationLockId = 194739201;
 
 export function createPostgresPool(env = process.env) {
     if (!env.DATABASE_URL) throw new Error("PostgreSQL requires DATABASE_URL.");
@@ -19,6 +21,7 @@ export function createPostgresPool(env = process.env) {
 export async function migratePostgres(pool) {
     const client = await pool.connect();
     try {
+        await client.query("SELECT pg_advisory_lock($1)", [migrationLockId]);
         await client.query("BEGIN");
         await client.query("CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
         const migrationFiles = (await fs.readdir(migrationsDirectory)).filter(file => /^\d+_.+\.sql$/.test(file)).sort();
@@ -33,7 +36,10 @@ export async function migratePostgres(pool) {
     } catch (error) {
         await client.query("ROLLBACK");
         throw error;
-    } finally { client.release(); }
+    } finally {
+        await client.query("SELECT pg_advisory_unlock($1)", [migrationLockId]).catch(() => {});
+        client.release();
+    }
 }
 
 export async function closePostgres(pool) { await pool.end(); }
