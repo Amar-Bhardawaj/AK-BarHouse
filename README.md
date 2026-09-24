@@ -13,6 +13,7 @@ The Barrel House is a small full-stack drinks-commerce application. The Phase 1 
 - sql.js remains a single-process development/test database. Writes use an atomic replacement plus `.bak` fallback, but production deployment should migrate to a server-grade relational database with managed backups before real commerce.
 - `script.js`, `checkout.js`, and `confirmation.js` provide the browser experience.
 - Razorpay is an integration boundary only; credentials are never committed or exposed except for the public test key returned to the checkout SDK.
+- When Razorpay credentials are absent, checkout runs in payment-deferred mode: it records a pending-payment order, does not call Razorpay, does not mark payment paid, and does not deduct stock.
 
 There are no microservices, framework migration, payment credentials, or production business assumptions.
 
@@ -72,6 +73,7 @@ The browser smoke test expects a running server. It covers homepage/category/pro
 - Send a unique `Idempotency-Key` for every checkout attempt; the browser stores one in `sessionStorage` and the server persists the key/fingerprint.
 - Razorpay payment order creation is reused for an existing pending attempt. Webhook event IDs are persisted to reject duplicate delivery.
 - Configure `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET` with Razorpay TEST MODE values only for sandbox testing. No credentials are included here.
+- The current no-credential checkout path is intentional for development. It records a reference and clearly reports that online payment is unavailable; Razorpay can be enabled later through the existing payment boundary.
 - Configure owner-approved `DELIVERY_POSTAL_CODES` and `DELIVERY_FEE`; empty serviceability is intentional until business rules are supplied.
 - Before production, add managed database storage, HTTPS, backups/restore drills, approved legal text, verified inventory, delivery rules, and production payment credentials.
 

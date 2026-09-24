@@ -27,25 +27,33 @@ test("hardening and commerce invariants", async () => {
     const health = await request("/api/health"); assert.equal(health.response.status, 200); assert.equal(health.body.ok, true);
     const products = await request("/api/products"); assert.equal(products.response.status, 200); assert.ok(products.body.length > 0);
     const product = await request("/api/products/glenfiddich-12"); assert.equal(product.response.status, 200);
+    const paymentStatus = await request("/api/payments/status"); assert.deepEqual(paymentStatus.body, { mode: "deferred", onlinePaymentAvailable: false, message: "Online payment is currently unavailable. Orders can be recorded as pending payment." });
 
     assert.equal(db.exec("PRAGMA foreign_keys")[0].values[0][0], 1);
     assert.throws(() => db.run("INSERT INTO addresses (customer_id,name,phone,address_line_1,city,state,postal_code,country) VALUES (999,'x','x','x','x','x','x','x')"));
 
+    const stockBefore = db.exec("SELECT stock FROM products WHERE id='glenfiddich-12'")[0].values[0][0];
     const first = await request("/api/orders", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": "test-order-1" }, body: JSON.stringify(orderBody()) });
-    assert.equal(first.response.status, 201); assert.ok(first.body.order.id);
+    assert.equal(first.response.status, 201); assert.ok(first.body.order.id); assert.equal(first.body.payment.status, "pending");
+    assert.equal(db.exec("SELECT stock FROM products WHERE id='glenfiddich-12'")[0].values[0][0], stockBefore);
     const duplicate = await request("/api/orders", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": "test-order-1" }, body: JSON.stringify(orderBody()) });
     assert.equal(duplicate.response.status, 200); assert.equal(duplicate.body.order.id, first.body.order.id);
     const conflict = await request("/api/orders", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": "test-order-1" }, body: JSON.stringify(orderBody([{ id: "glenfiddich-12", quantity: 2 }])) });
     assert.equal(conflict.response.status, 409);
     const invalidQuantity = await request("/api/orders", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": "bad-quantity" }, body: JSON.stringify(orderBody([{ id: "glenfiddich-12", quantity: -1 }])) });
     assert.equal(invalidQuantity.response.status, 400);
+    const unavailablePostal = await request("/api/orders", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": "bad-postal" }, body: JSON.stringify({ ...orderBody(), address: { ...orderBody().address, postal_code: "000000" } }) });
+    assert.equal(unavailablePostal.response.status, 400);
     const tooMuch = await request("/api/orders", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": "too-much" }, body: JSON.stringify(orderBody([{ id: "glenfiddich-12", quantity: 999 }])) });
     assert.equal(tooMuch.response.status, 400);
     const unpaidTransition = await request(`/api/admin/orders/${first.body.order.id}`, { method: "PATCH", headers: { ...auth, "Content-Type": "application/json" }, body: JSON.stringify({ status: "confirmed" }) });
     assert.equal(unpaidTransition.response.status, 409);
+    const adminOrders = await request("/api/admin/orders", { headers: auth }); assert.equal(adminOrders.response.status, 200); assert.ok(adminOrders.body.some(order => order.id === first.body.order.id && order.payment_status === "pending"));
+    const adminDetail = await request(`/api/admin/orders/${first.body.order.id}`, { headers: auth }); assert.equal(adminDetail.response.status, 200); assert.equal(adminDetail.body.items.length, 1); assert.equal(adminDetail.body.shipping_address.postal_code, "123456");
     const unauthorized = await request("/api/admin/orders"); assert.equal(unauthorized.response.status, 401);
     const paymentBoundary = await request("/api/payments/create", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: first.body.order.id }) });
     assert.equal(paymentBoundary.response.status, 503);
+    const verificationBoundary = await request("/api/payments/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: first.body.order.id }) }); assert.equal(verificationBoundary.response.status, 400);
 
     const event = JSON.stringify({ id: "evt-test-1", event: "payment.failed", payload: { payment: { entity: { order_id: "unknown-provider", id: "pay-test" } } } });
     const signature = crypto.createHmac("sha256", process.env.RAZORPAY_WEBHOOK_SECRET).update(event).digest("hex");
