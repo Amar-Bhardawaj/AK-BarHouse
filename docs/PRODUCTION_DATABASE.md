@@ -1,7 +1,7 @@
 # Production database initialization
 
 1. Provision a new empty managed PostgreSQL database.
-2. Set `NODE_ENV=production`, `DATABASE_URL`, database SSL settings, non-placeholder admin credentials, and approved business configuration.
+2. Set `NODE_ENV=production`, `DATABASE_URL`, `DATABASE_SSL=true`, `DATABASE_SSL_REJECT_UNAUTHORIZED=true`, non-placeholder admin credentials, and approved business configuration.
 3. Start the application. The migration runner applies `db/migrations/*.sql` exactly once per version.
 4. Verify `/api/health` reports `database: postgresql`.
 5. Load only approved production product records through an explicit operator-reviewed process. Do not copy the development SQLite database.
@@ -13,8 +13,24 @@
 
 The local `data/barrel-house.sqlite` and `.bak` files contain development/test state and are not production database sources.
 
-The explicit product-only helper is `node scripts/import-products-to-postgres.mjs`. It requires `DATABASE_URL`; in production it additionally requires `CONFIRM_PRODUCT_IMPORT=yes`. It never imports customers, addresses, orders, order items, payment events, or admin actions.
+The explicit product-only helper is `node scripts/import-products-to-postgres.mjs`. It requires `DATABASE_URL`; in production it additionally requires `CONFIRM_PRODUCT_IMPORT=yes`, an explicit `PRODUCTS_FILE` path to an owner-reviewed export outside `public/`, and rejects empty, placeholder, unapproved, negative-stock, or unpriced records. The development `data/products.json` is not a production export. The helper never imports customers, addresses, orders, order items, payment events, or admin actions.
 
 ## Recovery expectations
 
 The hosting/database provider must provide automated backups, a defined retention period, point-in-time recovery where available, access-controlled backup storage, and periodic restore drills. The repository does not claim that any provider backup is configured.
+
+## Backup and restore runbook
+
+Use the provider's managed backup/PITR facility when available. For an operator-created logical backup, run from a controlled host with `DATABASE_URL` supplied by the secret manager; never paste it into a command committed to Git or into logs:
+
+```powershell
+pg_dump --format=custom --file=barrel-house-YYYYMMDD-HHMM.dump "$env:DATABASE_URL"
+```
+
+Record the backup timestamp and verify the dump through the provider's protected storage. For a restore drill, provision a separate empty PostgreSQL database, set its connection string only in the environment, and restore without touching production:
+
+```powershell
+pg_restore --clean --if-exists --no-owner --dbname="$env:RESTORE_DATABASE_URL" .\barrel-house-YYYYMMDD-HHMM.dump
+```
+
+Run the migrations/checks against the restored database, verify `/api/health`, schema constraints, order/payment state protections, and representative row counts. A production recovery stops writes, restores the last verified snapshot or dump, verifies the application commit is compatible, and then resumes service. Do not restore development SQLite data into production.
