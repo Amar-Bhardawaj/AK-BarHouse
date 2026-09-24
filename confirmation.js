@@ -1,0 +1,8 @@
+const target = document.querySelector("#confirmation");
+const params = new URLSearchParams(location.search);
+const order = params.get("order");
+const token = params.get("token");
+const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
+const money = value => `₹ ${Number(value || 0).toLocaleString("en-IN")}`;
+if (!order || !token) target.innerHTML = `<span class="eyebrow">Order status</span><h1>Order details unavailable</h1><p class="muted">The confirmation link is incomplete.</p><a class="button" href="index.html">Return home</a>`;
+else fetch(`/api/orders/public/${encodeURIComponent(order)}?token=${encodeURIComponent(token)}`).then(response => response.json().then(data => ({ ok: response.ok, data }))).then(({ ok, data }) => { if (!ok) throw new Error(data.error); target.innerHTML = `<span class="eyebrow">Order received</span><h1>${data.payment_status === "paid" ? "Payment verified" : "Order pending"}</h1><p>Your order number is <strong>${escapeHtml(data.order_number)}</strong>.</p><p class="muted">Status: ${escapeHtml(data.status)}. Payment: ${escapeHtml(data.payment_status)}. Keep this link for your order status.</p><div class="checkout-total"><strong>Total</strong><strong>${money(data.total)}</strong></div><a class="button" href="index.html">Return to The Barrel House</a>`; }).catch(error => { target.innerHTML = `<span class="eyebrow">Order status</span><h1>Unable to load order</h1><p class="muted">${escapeHtml(error.message)}</p><a class="button" href="index.html">Return home</a>`; });
