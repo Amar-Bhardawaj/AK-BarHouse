@@ -9,6 +9,7 @@ const money = value => `₹ ${Number(value || 0).toLocaleString("en-IN")}`;
 
 if (!order || !token) {
     target.innerHTML = `<span class="eyebrow">Order status</span><h1>Order details unavailable</h1><p class="muted">The confirmation link is incomplete.</p><a class="button" href="index.html">Return home</a>`;
+    target.removeAttribute("aria-busy");
 } else {
     if (fallbackDeferred) target.innerHTML = `<span class="eyebrow">Order recorded</span><h1>Pending payment order</h1><p>Loading your order details…</p>`;
     fetch(`/api/orders/public/${encodeURIComponent(order)}?token=${encodeURIComponent(token)}`)

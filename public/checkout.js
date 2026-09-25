@@ -40,7 +40,7 @@ async function loadSummary() {
     document.querySelector("#checkout-subtotal").textContent = money(data.subtotal);
     document.querySelector("#checkout-delivery").textContent = data.serviceable ? money(data.delivery_fee) : "Service area to be confirmed";
     document.querySelector("#checkout-total").textContent = money(data.total);
-    document.querySelector("#delivery-status").textContent = data.serviceable ? "Delivery is available for configured postal codes." : "Delivery areas have not been configured yet.";
+    document.querySelector("#delivery-status").textContent = data.serviceable ? "Configured delivery options are shown below; serviceability is confirmed when the order is submitted." : "Delivery areas have not been configured yet.";
 }
 async function createPayment(order) {
     const response = await fetch("/api/payments/create", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: order.id }) });

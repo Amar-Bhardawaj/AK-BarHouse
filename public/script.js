@@ -4,7 +4,7 @@ let productsLoaded = false;
 const cartKey = "barrel-house-cart";
 const categoryNames = { whiskey: "Whiskey", wine: "Wine", cocktails: "Cocktails", healthy: "Healthy drinks" };
 const categoryImages = { whiskey: "assets/categories/whiskey.svg", wine: "assets/categories/wine.svg", cocktails: "assets/categories/cocktails.svg", healthy: "assets/categories/healthy.svg" };
-const categoryAlt = { whiskey: "Generic whiskey barrel and tasting glass", wine: "Generic wine bottle and glasses", cocktails: "Generic classic cocktail with citrus garnish", healthy: "Generic fresh non-alcoholic drink with citrus and herbs" };
+const categoryAlt = { whiskey: "Amber whiskey barrel beside a tasting glass", wine: "Wine bottle with two filled glasses", cocktails: "Classic amber cocktail with citrus and herb garnish", healthy: "Fresh green drink with citrus and herb garnish" };
 const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
 
 function readCart() {
