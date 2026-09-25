@@ -104,5 +104,5 @@ Deployment still requires a Node.js host with persistent writable storage, HTTPS
 - No approved business contact details, delivery regions, inventory, or legal policy text are present in the repository.
 - Age rules, delivery restrictions, returns, privacy, terms, and alcohol-commerce compliance require owner/legal confirmation.
 - Razorpay sandbox credentials and webhook configuration are still required for payment testing. No payment is simulated or marked paid locally.
-- External product image URLs remain from Phase 1 and require availability, licensing, and local-asset review before production.
+- Current product records use generic local category artwork; replace them with approved, licensed product photography or packaging assets before production.
 - `hgwin.dll`, old CSS files, demo HTML files, and unused image assets remain unreferenced pending an explicit ownership/cleanup decision.

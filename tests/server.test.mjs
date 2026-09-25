@@ -48,6 +48,8 @@ test("hardening and commerce invariants", async () => {
     assert.equal(conflict.response.status, 409);
     const invalidQuantity = await request("/api/orders", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": "bad-quantity" }, body: JSON.stringify(orderBody([{ id: "glenfiddich-12", quantity: -1 }])) });
     assert.equal(invalidQuantity.response.status, 400);
+    const duplicateLines = await request("/api/orders", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": "duplicate-lines" }, body: JSON.stringify(orderBody([{ id: "glenfiddich-12", quantity: 6 }, { id: "glenfiddich-12", quantity: 6 }])) });
+    assert.equal(duplicateLines.response.status, 400);
     const unavailablePostal = await request("/api/orders", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": "bad-postal" }, body: JSON.stringify({ ...orderBody(), address: { ...orderBody().address, postal_code: "000000" } }) });
     assert.equal(unavailablePostal.response.status, 400);
     const tooMuch = await request("/api/orders", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": "too-much" }, body: JSON.stringify(orderBody([{ id: "glenfiddich-12", quantity: 999 }])) });
@@ -57,7 +59,11 @@ test("hardening and commerce invariants", async () => {
     const adminOrders = await request("/api/admin/orders", { headers: auth }); assert.equal(adminOrders.response.status, 200); assert.ok(adminOrders.body.some(order => order.id === first.body.order.id && order.payment_status === "pending"));
     const adminDetail = await request(`/api/admin/orders/${first.body.order.id}`, { headers: auth }); assert.equal(adminDetail.response.status, 200); assert.equal(adminDetail.body.items.length, 1); assert.equal(adminDetail.body.shipping_address.postal_code, "123456");
     const unauthorized = await request("/api/admin/orders"); assert.equal(unauthorized.response.status, 401);
-    const paymentBoundary = await request("/api/payments/create", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: first.body.order.id }) });
+    const invalidActive = await request("/api/admin/products/glenfiddich-12", { method: "PATCH", headers: { ...auth, "Content-Type": "application/json" }, body: JSON.stringify({ stock: 10, active: "false" }) });
+    assert.equal(invalidActive.response.status, 400);
+    const wrongCheckoutCapability = await request("/api/payments/create", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: first.body.order.id, public_token: "wrong" }) });
+    assert.equal(wrongCheckoutCapability.response.status, 404);
+    const paymentBoundary = await request("/api/payments/create", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: first.body.order.id, public_token: first.body.order.publicToken }) });
     assert.equal(paymentBoundary.response.status, 503);
     const verificationBoundary = await request("/api/payments/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order_id: first.body.order.id }) }); assert.equal(verificationBoundary.response.status, 400);
 
@@ -72,6 +78,12 @@ test("hardening and commerce invariants", async () => {
     db.run("UPDATE products SET stock=10 WHERE id='glenfiddich-12'"); saveDatabase();
     const recovered = await request(`/api/admin/orders/${first.body.order.id}/reconcile`, { method: "POST", headers: { ...auth, "Content-Type": "application/json" }, body: "{}" });
     assert.equal(recovered.response.status, 200);
+    const cancelledOrder = await request("/api/orders", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": "cancelled-payment" }, body: JSON.stringify(orderBody()) });
+    assert.equal(cancelledOrder.response.status, 201);
+    db.run("UPDATE orders SET status='cancelled',payment_provider_order_id='cancelled-provider' WHERE id=?", [cancelledOrder.body.order.id]); saveDatabase();
+    const stockBeforeCancelledPayment = db.exec("SELECT stock FROM products WHERE id='glenfiddich-12'")[0].values[0][0];
+    assert.throws(() => markPaymentPaid("cancelled-provider", "pay-cancelled"), /ineligible order/);
+    assert.equal(db.exec("SELECT stock FROM products WHERE id='glenfiddich-12'")[0].values[0][0], stockBeforeCancelledPayment);
     assert.ok(fs.existsSync(process.env.DATABASE_PATH)); assert.ok(fs.existsSync(`${process.env.DATABASE_PATH}.bak`));
 });
 

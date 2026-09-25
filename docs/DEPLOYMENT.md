@@ -37,7 +37,7 @@ Razorpay variables remain deferred and must not be populated until the payment a
 
 ## Operations required before launch
 
-Configure HTTPS at the hosting edge before exposing the app; set `TRUST_PROXY=true` only when that proxy is trusted and forwards the correct client protocol. Configure persistent database storage, log collection, error alerts, `/api/health` monitoring, backup scheduling, restore drills, process restart policy, and access control. Confirm that the database and backup paths are outside the static `public/` directory. The application sends HSTS, CSP, frame, MIME-sniffing, referrer, and permissions-policy headers; keep reverse-proxy security headers compatible with them.
+Configure HTTPS at the hosting edge before exposing the app; set `TRUST_PROXY=true` only when that proxy is trusted and forwards the correct client protocol. Configure persistent database storage, log collection, error alerts, `/api/health` monitoring, backup scheduling, restore drills, process restart policy, access control, and edge-level per-IP rate limits for public order/payment and admin routes. Confirm those limits in staging before accepting traffic. Confirm that the database and backup paths are outside the static `public/` directory. The application sends HSTS, CSP, frame, MIME-sniffing, referrer, and permissions-policy headers; keep reverse-proxy security headers compatible with them.
 
 ## Owner-supplied launch inputs
 
